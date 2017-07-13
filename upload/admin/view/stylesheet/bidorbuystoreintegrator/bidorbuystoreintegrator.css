@@ -1,0 +1,323 @@
+/*Logo & Adv aligment START*/
+#bobsi-adv {
+    float: right;
+}
+
+#logo {
+    float: left;
+    width: 51%;
+}
+/*Logo & Adv aligment END*/
+
+fieldset table {
+    width: 100%;
+}
+
+.form-table {
+    border-collapse: collapse;
+    margin-top: .5em;
+    width: 100%;
+    margin-bottom: -8px;
+    clear: both;
+}
+
+.form-table tbody tr td {
+    padding: 10px;
+}
+
+#criteria.form-table tbody tr td{
+    padding: 1px;
+}
+
+.right {
+    text-align: right;
+}
+
+.form-table th {
+    vertical-align: top;
+    text-align: left;
+    padding: 10px;
+    width: 200px;
+    font-weight: normal;
+    text-shadow: #FFF 0 1px 0;
+}
+
+.form-table thead td a, thead td {
+    background-color: #EFEFEF;
+    text-decoration: none;
+    color: #222;
+    font-weight: bold;
+    padding: 7px 10px;
+    margin: 0;
+    background-image: linear-gradient(to top, #ECECEC, #F9F9F9);
+}
+
+input {
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #DFDFDF;
+    background-color: #FFF;
+    color: #333;
+}
+
+.postbox {
+    margin-bottom: 20px;
+    padding: 0;
+    border-width: 1px;
+    border-style: solid;
+    line-height: 1;
+
+    border-width: 1px;
+    border-style: solid;
+
+    background: #F5F5F5;
+    background-image: -webkit-gradient(linear, left bottom, left top, from(#F5F5F5), to(#F9F9F9));
+    background-image: -webkit-linear-gradient(bottom, #F5F5F5, #F9F9F9);
+    background-image: -moz-linear-gradient(bottom, #f5f5f5, #f9f9f9);
+    background-image: -o-linear-gradient(bottom, #f5f5f5, #f9f9f9);
+    background-image: linear-gradient(to top, #F5F5F5, #F9F9F9);
+
+    border-color: #DFDFDF;
+    -webkit-box-shadow: inset 0 1px 0 #FFF;
+    box-shadow: inset 0 1px 0 #FFF;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+button.loggingFormButton, .buttons a.button, #criteria a, .export-links a {
+    text-decoration: none;
+    color: #FFF;
+    display: inline-block;
+    padding: 5px 15px;
+    background: none repeat scroll 0% 0% #003A88;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/******************************************************/
+
+.bobsi-categories-select[multiple] {
+    min-width: 200px;
+    height: 200px !important;
+}
+
+.bobsi-select {
+    width: 67%;
+}
+
+#tiptip_content {
+    background: #aaaaaa;
+}
+
+/*
+ * TODO paint tip's arrow in #aaa color
+ */
+
+#bobsi-admin-header {
+    width: 100%;
+    margin-top: 15px;
+    vertical-align: middle;
+}
+
+#poststuff {
+    margin-right: 15px;
+    clear: both;
+}
+
+.postbox {
+    width: 49%;
+    float: left;
+    min-height: 350px;
+}
+
+.postbox-inner h3 {
+    cursor: default !important;
+}
+
+.links, .debug {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+}
+
+.links, .version {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    background: none;
+}
+
+table.form-table.export-links, table.form-table.log-links {
+    width: 100%;
+}
+
+table.form-table td {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.help_tip {
+    float: right;
+}
+
+fieldset {
+    border: 1px #ddd solid;
+}
+
+.bobsi-input {
+    width: 67%;
+}
+
+#ctrl-c-message {
+    display: none;
+    position: absolute;
+    text-align: center;
+    padding: 10px;
+    width: 120px;
+    background: #43D8FA;
+    color: white;
+    font-size: large;
+    border-radius: 8px;
+    z-index: 99999999;
+}
+
+.bobsi-url {
+    cursor: pointer;
+    width: 100%;
+}
+
+.export-links tr td:first-child {
+    width: 115px;
+}
+
+td + td + td {
+    text-align: right;
+    width: 200px;
+}
+
+.postbox.postbox-inner .data-item img.help_tip {
+    margin-top: 5px;
+}
+
+.postbox.postbox-inner .last-item img.help_tip {
+    margin-top: 0;
+}
+
+#cats-right {
+    width: 45%;
+    text-align: left;
+}
+
+#cats-left {
+    width: 45%;
+}
+
+#cats-middle {
+    vertical-align: middle;
+}
+
+.postbox.postbox-right {
+    float: right;
+}
+
+#bobsi-admin-header h2 {
+    margin-top: 30px;
+    display: block;
+    float: left;
+}
+
+@media only screen and (max-width: 1110px) {
+    .title-item {
+        display: block;
+        float: left;
+        width: 70%;
+    }
+
+    .help_tip {
+        float: none;
+    }
+}
+
+.button-item {
+    padding-top: 0;
+    clear: both;
+}
+
+.button-item .button,
+input.bobsi-save-settings {
+    float: right;
+    margin-bottom: 10px !important;
+}
+
+@media only screen and (max-width: 615px) {
+    .button-section .button {
+        padding-left: 1px;
+        padding-right: 1px;
+    }
+}
+
+@media only screen and (max-width: 570px) {
+    .button-section {
+        padding-left: 0 !important;
+    }
+
+    .button-section .button {
+        padding-left: 1px;
+        padding-right: 1px;
+    }
+}
+
+.submit {
+    padding: 0;
+}
+
+.panel-heading .buttons {
+    float: right;
+    margin-top: -4px;
+}
+
+.bob-admin-head {
+    float: none;
+    width: 100%;
+    min-height: 70px;
+}
+.help {
+    color: #666;
+    font-size: 11px;
+    font-weight: normal;
+    font-family: Verdana, Geneva, sans-serif;
+    display: block;
+}
+
+input[type='text'], input[type='password'] {
+    padding: 2px;
+    height:25px;
+}
+
+table.bobsi-logging-form-table {
+    border-collapse: separate;
+    border-spacing: 0px 8px;
+    width: 100%;
+}
+
+table.bobsi-logging-form-table tbody td {
+    padding-left: 8px;
+}
+
+table.bobsi-logging-form-table tbody td:first-child {
+    width: 20%;
+}
+
+#bobsi-measure_options_width {
+    visibility:hidden;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 0;
+}
+label {
+    display:block;
+    text-align:left;
+}
