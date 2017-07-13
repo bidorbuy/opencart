@@ -19,7 +19,7 @@ To make use of this plugin, you'll need to be an advanced seller on bidorbuy.
 
 ### Installation OpenCart 1.5.x, OpenCart 2.1.x, OpenCart 2.2.x
 
-1. Unzip all the files in a local directory from 'storeintegrator-opencart-x.x.x-1.5.x-2.2.x.ocmod' archive.
+1. Unzip all the files in a local directory from 'bidorbuy-storeintegrator-opencart-#.#.#-1.5.x-2.2.x.LEGACY.zip' archive.
 2. (Optional) In case you have changed the admin`s folder name of your OpenCart installation - please rename /admin folder of the extension accordingly.
 3. Upload files in the public_html folder of your site. You have to upload the plugin folder in the same place. 
 4. Log in to control panel as administrator.
@@ -28,7 +28,7 @@ To make use of this plugin, you'll need to be an advanced seller on bidorbuy.
 
 ### Installation OpenCart 2.3.x
 
-1. Unzip all the files in a local directory from 'storeintegrator-opencart-x.x.x-2.3.x-latest.ocmod' archive.
+1. Unzip all the files in a local directory from 'bidorbuy-storeintegrator-opencart-#.#.#-2.3.x-latest.zip' archive.
 2. (Optional) In case you have changed the admin`s folder name of your OpenCart installation - please rename /admin folder of the extension accordingly.
 3. Upload files in the public_html folder of your site. You have to upload the plugin folder in the same place. 
 4. Log in to control panel as administrator.
