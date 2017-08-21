@@ -5,8 +5,9 @@
  * This software is the proprietary information of Bidorbuy.
  *
  * All Rights Reserved.
- * Modification, redistribution and use in source and binary forms, with or without modification
- * are not permitted without prior written approval by the copyright holder.
+ * Modification, redistribution and use in source and binary forms, with or without
+ * modification are not permitted without prior written approval by the copyright
+ * holder.
  *
  * Vendor: EXTREME IDEA LLC http://www.extreme-idea.com
  */
@@ -16,76 +17,144 @@ use com\extremeidea\bidorbuy\storeintegrator\core as bobsi;
 require_once(DIR_SYSTEM . '/../bidorbuystoreintegrator/factory.php');
 
 
+/**
+ * Class ControllerFeedBidorbuyStoreIntegrator.
+ *
+ * @codingStandardsIgnoreStart
+ */
 class ControllerFeedBidorbuyStoreIntegrator extends Controller {
+    // @codingStandardsIgnoreEnd
     private $error = array();
     private $settings;
 
+    /**
+     * ControllerFeedBidorbuyStoreIntegrator constructor.
+     *
+     * @param mixed $registry registry
+     *
+     * @return mixed
+     */
     public function __construct($registry) {
         parent::__construct($registry);
         $bobsi = new BobsiInit();
         $bobsi->init($this->config);
     }
 
+    /**
+     * Index page
+     *
+     * @return void
+     */
     public function index() {
         $this->load->language(EXTENSION_PATH . 'feed/bidorbuystoreintegrator');
         $this->load->model('bidorbuystoreintegrator/model');
         $this->load->model('setting/setting');
         $this->load->model('catalog/category');
 
-        if (bidorbuystoreintegrator_is_upgrade_required($this->model_setting_setting)) {
-            bidorbuystoreintegrator_upgrade_202($this->model_setting_setting);
-        }
+        $this->updateFunctions();
 
         $this->settings = $this->model_setting_setting->getSetting(bobsi\Version::$id);
         if (isset($this->settings[BIDORBUY_SETTINGS_NAME])) {
-            bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->unserialize($this->settings[BIDORBUY_SETTINGS_NAME], true);
+            bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                ->getSettings()->unserialize($this->settings[BIDORBUY_SETTINGS_NAME], TRUE);
         }
+
         $isHttps = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->isHTTPS();
 
         // Reset Token action
         if (isset($this->request->post[bobsi\Settings::nameActionReset]) && $this->validate()) {
 
             bobsi\StaticHolder::getBidorbuyStoreIntegrator()->processAction(bobsi\Settings::nameActionReset);
-            $settingsGroup = array(BIDORBUY_SETTINGS_NAME => bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->serialize(true));
+            $settingsGroup = array(BIDORBUY_SETTINGS_NAME => bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                ->getSettings()->serialize(TRUE));
             $this->saveSettings($settingsGroup);
-            
+
             $this->session->data['bobsi-success'][] = $this->language->get('text_reset_tokens');
 
             // Version >= 2.0
-            if (version_compare(VERSION, '2.0') >= 0) {
-                $this->response->redirect($this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps));
-            } else {
-                $this->redirect($this->url->link('feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps ? 'SSL' : 'NONSSL'));
-            }
+            (version_compare(VERSION, '2.0') >= 0) ?
+                $this->response->redirect(
+                    $this->url->link(
+                        EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 
+                        $isHttps)
+                ) 
+                : $this->redirect(
+                    $this->url->link(
+                        'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 
+                        $isHttps ? 'SSL' : 'NONSSL'
+                    )
+                );
+
         }
 
         // Log files actions: Download, Remove
-        if (isset($this->request->post[bobsi\Settings::nameLoggingFormAction]) && $this->validate()) {
-            $data = array(
-                bobsi\Settings::nameLoggingFormFilename =>
-                    (isset($this->request->post[bobsi\Settings::nameLoggingFormFilename]))
-                        ? $this->request->post[bobsi\Settings::nameLoggingFormFilename]
-                        : '');
-            $result = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->processAction($this->request->post[bobsi\Settings::nameLoggingFormAction], $data);
-            foreach ($result as $item) {
-                $this->session->data['bobsi-success'][] = $item;
-            }
-
-            // Version >= 2.0
-            if (version_compare(VERSION, '2.0') >= 0) {
-                $this->response->redirect($this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps));
-            } else {
-                $this->redirect($this->url->link('feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps ? 'SSL' : 'NONSSL'));
-            }
-        }
+        $this->logsFilesActions($isHttps);
 
         //Save the settings if the user has submitted the admin form (ie if someone has pressed save).
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate() && empty($this->request->post[bobsi\Settings::nameLoggingFormAction])) {
-            bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->unserialize(serialize($this->request->post));
+        $this->submitSettingsForm($isHttps);
+
+        // Set the title from the language file $_['heading_title'] string
+        $this->document->setTitle($this->language->get('heading_title'));
+        $this->document->addScript(
+            '../bidorbuystoreintegrator/vendor/com.extremeidea.bidorbuy/storeintegrator-core/assets/js/admin.js'
+        );
+        $this->document->addScript('view/javascript/bidorbuystoreintegrator/admin_aux.js');
+        $this->document->addStyle('view/stylesheet/bidorbuystoreintegrator/bidorbuystoreintegrator.css');
+
+        $data = $this->getTemplateVariables();
+
+        // Version >= 2.0
+        if (version_compare(VERSION, '2.0') >= 0) {
+            $data['header'] = $this->load->controller('common/header');
+            $data['column_left'] = $this->load->controller('common/column_left');
+            $data['footer'] = $this->load->controller('common/footer');
+
+            $this->response->setOutput(
+                $this->load->view(EXTENSION_PATH . 'feed/bidorbuystoreintegrator_v2.tpl', $data)
+            );
+        } else {
+            $this->data = $data;
+
+            $this->template = 'feed/bidorbuystoreintegrator.tpl';
+            $this->children = array(
+                'common/header',
+                'common/footer',
+            );
+
+            $this->response->setOutput($this->render());
+        }
+    }
+
+    /**
+     * Update functions
+     *
+     * @return void
+     */
+    protected function updateFunctions() {
+        if (bidorbuystoreintegrator_is_upgrade_required($this->model_setting_setting)) {
+            bidorbuystoreintegrator_upgrade_202($this->model_setting_setting);
+        }
+    }
+
+    /**
+     * Submit Form.
+     *
+     * @param boolean $isHttps check protocol
+     *
+     * @return void
+     */
+    protected function submitSettingsForm($isHttps) {
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') 
+            && $this->validate() 
+            && empty($this->request->post[bobsi\Settings::nameLoggingFormAction])
+        ) {
+            bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                ->getSettings()->unserialize(serialize($this->request->post));
             $data = $this->request->post;
-            $wordings = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getDefaultWordings();
+            $wordings = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                ->getSettings()->getDefaultWordings();
             $presaved_settings = array();
-            $prevent_saving = false;
+            $prevent_saving = FALSE;
 
             $settings_checklist = array(
                 bobsi\Settings::nameUsername => 'strval',
@@ -102,32 +171,36 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
 
             foreach ($settings_checklist as $setting => $prevalidation) {
                 switch ($prevalidation) {
-                case ('strval'):
-                    $presaved_settings[$setting] = isset($data[$setting]) ? 
-                        strval($data[$setting]) : '';
-                    break;
-                case ('intval'):
-                    $presaved_settings[$setting] = isset($data[$setting]) ?
-                        $data[$setting] : 0;
-                    break;
-                case ('bool'):
-                    $presaved_settings[$setting] = isset($data[$setting]) ?
-                        (bool)($data[$setting]) : false;
-                    break;
-                case ('categories'):
-                    $presaved_settings[$setting] = isset($data[$setting]) ?
-                        (array)$data[$setting] : array();
+                    case ('strval'):
+                        $presaved_settings[$setting] = isset($data[$setting]) ?
+                            strval($data[$setting]) : '';
+                        break;
+                    case ('intval'):
+                        $presaved_settings[$setting] = isset($data[$setting]) ?
+                            $data[$setting] : 0;
+                        break;
+                    case ('bool'):
+                        $presaved_settings[$setting] = isset($data[$setting]) ?
+                            (bool)($data[$setting]) : FALSE;
+                        break;
+                    case ('categories'):
+                        $presaved_settings[$setting] = isset($data[$setting]) ?
+                            (array)$data[$setting] : array();
                 }
 
-                if (!call_user_func($wordings[$setting][bobsi\Settings::nameWordingsValidator], $presaved_settings[$setting])) {
+                if (!call_user_func(
+                    $wordings[$setting][bobsi\Settings::nameWordingsValidator], 
+                    $presaved_settings[$setting]
+                )
+                ) {
                     $field = $wordings[$setting]['title'];
-                    
+
                     $this->session->data['bobsi-warning'][] = (
-                        "Invalid value: 
+                    "Invalid value: 
                         \"$presaved_settings[$setting]\"in the field: $field"
                     );
-                    
-                    $prevent_saving = true;
+
+                    $prevent_saving = TRUE;
                 }
             }
 
@@ -144,7 +217,7 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
                     ->unserialize(serialize($presaved_settings));
 
                 $newSettings = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
-                    ->getSettings()->serialize(true);
+                    ->getSettings()->serialize(TRUE);
 
                 $settingsGroup = array(BIDORBUY_SETTINGS_NAME => $newSettings);
 
@@ -152,66 +225,101 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
             }
 
             // Version >= 2.0
-            if (version_compare(VERSION, '2.0') >= 0) {
-                $this->response->redirect($this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps));
-            } else {
-                $this->redirect($this->url->link('feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], $isHttps ? 'SSL' : 'NONSSL'));
-            }
-        }
-
-        // Set the title from the language file $_['heading_title'] string
-        $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addScript('../bidorbuystoreintegrator/vendor/com.extremeidea.bidorbuy/storeintegrator-core/assets/js/admin.js');
-        $this->document->addScript('view/javascript/bidorbuystoreintegrator/admin_aux.js');
-        $this->document->addStyle('view/stylesheet/bidorbuystoreintegrator/bidorbuystoreintegrator.css');
-
-        $data = $this->getTemplateVariables();
-
-        // Version >= 2.0
-        if (version_compare(VERSION, '2.0') >= 0) {
-            $data['header'] = $this->load->controller('common/header');
-            $data['column_left'] = $this->load->controller('common/column_left');
-            $data['footer'] = $this->load->controller('common/footer');
-
-            $this->response->setOutput($this->load->view(EXTENSION_PATH . 'feed/bidorbuystoreintegrator_v2.tpl', $data));
-        } else {
-            $this->data = $data;
-
-            $this->template = 'feed/bidorbuystoreintegrator.tpl';
-            $this->children = array(
-                'common/header',
-                'common/footer',
+            (version_compare(VERSION, '2.0') >= 0) ?
+                $this->response->redirect(
+                    $this->url->link(
+                        EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 
+                        'token=' . $this->session->data['token'], 
+                        $isHttps
+                    )
+                ) 
+                : $this->redirect(
+                $this->url->link(
+                    'feed/bidorbuystoreintegrator', 
+                    'token=' . $this->session->data['token'], 
+                    $isHttps ? 'SSL' : 'NONSSL'
+                )
             );
-
-            $this->response->setOutput($this->render());
         }
     }
 
-    /*
-      * This function is called to ensure that the settings chosen by the admin user are allowed/valid.
-      * You can add checks in here of your own.
-      */
+    /**
+     * Log files actions
+     *
+     * @param boolean $isHttps https check
+     *
+     * @return void
+     */
+    protected function logsFilesActions($isHttps) {
+        if (isset($this->request->post[bobsi\Settings::nameLoggingFormAction]) && $this->validate()) {
+            $data = array(
+                bobsi\Settings::nameLoggingFormFilename =>
+                    (isset($this->request->post[bobsi\Settings::nameLoggingFormFilename]))
+                        ? $this->request->post[bobsi\Settings::nameLoggingFormFilename]
+                        : '');
+            $result = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                ->processAction($this->request->post[bobsi\Settings::nameLoggingFormAction], $data);
+            foreach ($result as $item) {
+                $this->session->data['bobsi-success'][] = $item;
+            }
+
+            // Version >= 2.0
+            (version_compare(VERSION, '2.0') >= 0) ?
+                $this->response->redirect($this->url->link(
+                    EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 
+                    'token=' . $this->session->data['token'], 
+                    $isHttps
+                )) 
+                : $this->redirect($this->url->link(
+                    'feed/bidorbuystoreintegrator', 
+                    'token=' . $this->session->data['token'], $isHttps ? 'SSL' : 'NONSSL'
+            ));
+        }
+    }
+
+    /**
+     * This function is called to ensure that the settings chosen by the admin user
+     * are allowed/valid. You can add checks in here of your own.
+     *
+     * @return boolean
+     */
     protected function validate() {
         if (!$this->user->hasPermission('modify', EXTENSION_PATH . 'feed/bidorbuystoreintegrator')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
-        return !$this->error ? true : false;
+        return !$this->error ? TRUE : FALSE;
     }
 
+    /**
+     * Install action
+     *
+     * @return void
+     */
     public function install() {
         $this->load->model('setting/setting');
 
         $settingsGroup = array();
-        $settingsGroup[BIDORBUY_SETTINGS_NAME] = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->serialize(true);
+        $settingsGroup[BIDORBUY_SETTINGS_NAME] = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+            ->getSettings()->serialize(TRUE);
 
         $this->saveSettings($settingsGroup);
     }
 
+    /**
+     * Uninstall action
+     *
+     * @return void
+     */
     public function uninstall() {
         $this->load->model('setting/setting');
         $this->model_setting_setting->deleteSetting(bobsi\Version::$id);
     }
 
+    /**
+     * Template
+     *
+     * @return array
+     */
     protected function getTemplateVariables() {
         $data = array();
 
@@ -244,7 +352,7 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         }
 
         $data['success'] = array();
-        
+
         $data['warning'] = array_merge(
             bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getWarnings(),
             bobsi\StaticHolder::getWarnings()->getBusinessWarnings()
@@ -270,12 +378,28 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
             'limit' => $this->model_catalog_category->getTotalCategories());
 
         $categories = $this->model_catalog_category->getCategories($categories_params);
-		$data['cancel'] = $this->url->link('extension/feed', 'token=' . $this->session->data['token'], true);
+        $data['cancel'] = $this->url->link('extension/feed', 'token=' . $this->session->data['token'], TRUE);
         $data['token_download'] = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getTokenDownload();
         $data['token_export'] = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getTokenExport();
-        $data['download_link'] = HTTP_CATALOG . 'index.php?route='. EXTENSION_PATH . 'feed/bidorbuystoreintegrator/download&t=' . $data['token_download'];
-        $data['export_link'] = HTTP_CATALOG . 'index.php?route='. EXTENSION_PATH .'feed/bidorbuystoreintegrator/export&t=' . $data['token_export'];
-        $data['phpInfo_link'] = HTTP_CATALOG . 'index.php?route='. EXTENSION_PATH . 'feed/bidorbuystoreintegrator/version&t=' . $data['token_download'] . '&phpinfo=y';
+        $data['download_link'] = HTTP_CATALOG 
+            . 'index.php?route=' 
+            . EXTENSION_PATH 
+            . 'feed/bidorbuystoreintegrator/download&t=' 
+            . $data['token_download'];
+        
+        $data['export_link'] = HTTP_CATALOG 
+            . 'index.php?route=' 
+            . EXTENSION_PATH 
+            . 'feed/bidorbuystoreintegrator/export&t=' 
+            . $data['token_export'];
+        
+        $data['phpInfo_link'] = HTTP_CATALOG 
+            . 'index.php?route=' 
+            . EXTENSION_PATH 
+            . 'feed/bidorbuystoreintegrator/version&t=' 
+            . $data['token_download'] 
+            . '&phpinfo=y';
+        
         $data['logsHtml'] = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getLogsHtml();
 
         if (isset($this->request->post['bobsi_status'])) {
@@ -295,7 +419,7 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
             'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
-            'separator' => false
+            'separator' => FALSE
         );
 
         $data['breadcrumbs'][] = array(
@@ -306,12 +430,19 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 'SSL'),
+            'href' => $this->url->link(
+                EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 
+                'token=' . $this->session->data['token'], 'SSL'
+            ),
             'separator' => ' :: '
         );
 
-        $data['action'] = $this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 'SSL');
-        $data['reset'] = $this->url->link(EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 'SSL');
+        $data['action'] = $this->url->link(
+            EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 'SSL'
+        );
+        $data['reset'] = $this->url->link(
+            EXTENSION_PATH . 'feed/bidorbuystoreintegrator', 'token=' . $this->session->data['token'], 'SSL'
+        );
 
         $data['baa'] = $this->showBAA();
         $formdata = (array)bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings();
@@ -320,17 +451,35 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $data;
     }
 
+    /**
+     * Save settings action
+     *
+     * @param array $settingsGroup settings
+     *
+     * @return void
+     */
     protected function saveSettings($settingsGroup = array()) {
         $settingsGroup[bobsi\Version::$id . '_status'] = 1;
         $this->model_setting_setting->editSetting(bobsi\Version::$id, $settingsGroup);
     }
 
+    /**
+     * Show BAA
+     *
+     * @return bool
+     */
     protected function showBAA() {
         return isset($this->request->get['baa']) && $this->request->get['baa'] == 1;
     }
 
 }
 
+/**
+ * Class ControllerExtensionFeedBidorbuyStoreIntegrator.
+ * 
+ * @codingStandardsIgnoreStart
+ */
 class ControllerExtensionFeedBidorbuyStoreIntegrator extends ControllerFeedBidorbuyStoreIntegrator {
 
 }
+// @codingStandardsIgnoreEnd

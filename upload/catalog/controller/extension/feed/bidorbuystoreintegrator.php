@@ -5,8 +5,9 @@
  * This software is the proprietary information of Bidorbuy.
  *
  * All Rights Reserved.
- * Modification, redistribution and use in source and binary forms, with or without modification
- * are not permitted without prior written approval by the copyright holder.
+ * Modification, redistribution and use in source and binary forms, with or without
+ * modification are not permitted without prior written approval by the copyright
+ * holder.
  *
  * Vendor: EXTREME IDEA LLC http://www.extreme-idea.com
  */
@@ -15,17 +16,29 @@ use com\extremeidea\bidorbuy\storeintegrator\core as bobsi;
 
 require_once(DIR_SYSTEM . '/../bidorbuystoreintegrator/factory.php');
 
-
+/**
+ * Class ControllerFeedBidorbuyStoreIntegrator.
+ *
+ * @codingStandardsIgnoreStart
+ */
 class ControllerFeedBidorbuyStoreIntegrator extends Controller {
+    // @codingStandardsIgnoreEnd
     private $shipMethods = array();
-    private $modelExtension = null;
+    private $modelExtension = NULL;
 
+    /**
+     * ControllerFeedBidorbuyStoreIntegrator constructor.
+     *
+     * @param mixed $registry registry
+     *
+     * @return void.
+     */
     public function __construct($registry) {
         parent::__construct($registry);
 
         $bobsi = new BobsiInit();
         $bobsi->init($this->config);
-        
+
         $this->load->model('catalog/category');
         $this->load->model('catalog/product');
         $this->load->model('setting/setting');
@@ -43,7 +56,8 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         foreach ($this->modelExtension->getExtensions('shipping') as $shipMethod) {
             $extData = $this->model_setting_setting->getSetting($shipMethod['code']);
             //Get only active extensions
-            if (isset($extData[$shipMethod['code'] . '_status']) && $extData[$shipMethod['code'] . '_status'] == '1') {
+            if (isset($extData[$shipMethod['code'] . '_status'])
+                && $extData[$shipMethod['code'] . '_status'] == '1') {
                 //Get full name from shipping language file
                 $this->shipMethods[] = ($this->language->load(EXTENSION_PATH . 'shipping/' . $shipMethod['code'])) ?
                     $this->language->get('text_title')
@@ -52,9 +66,19 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         }
     }
 
+    /**
+     * Get Breadcrumb
+     *
+     * @param mixed $categoryId category id
+     *
+     * @return string
+     */
     public function getBreadcrumb($categoryId) {
         $category = $this->model_catalog_category->getCategory($categoryId);
-        $parents = (intval($categoryId) > 0 && is_array($category) && isset($category['category_id']) && is_numeric($category['category_id'])) ? $this->getParentList($category['category_id']) : array();
+        $parents = (intval($categoryId) > 0
+            && is_array($category)
+            && isset($category['category_id'])
+            && is_numeric($category['category_id'])) ? $this->getParentList($category['category_id']) : array();
 
         $names = array();
         foreach ($parents as $c) {
@@ -63,6 +87,14 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return implode(' > ', $names);
     }
 
+    /**
+     * Parent list
+     *
+     * @param mixed $parentId parent id
+     * @param array $parentList list
+     *
+     * @return array
+     */
     public function getParentList($parentId, &$parentList = array()) {
         $parent = $this->model_catalog_category->getCategory($parentId);
 
@@ -73,6 +105,13 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $parentList;
     }
 
+    /**
+     * Get products
+     *
+     * @param array $exportConfiguration configuration.
+     *
+     * @return array
+     */
     public function &getProducts(&$exportConfiguration = array()) {
         $itemsPerIteration = intval($exportConfiguration[bobsi\Settings::paramItemsPerIteration]);
         $iteration = intval($exportConfiguration[bobsi\Settings::paramIteration]);
@@ -81,7 +120,10 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         $products = array();
         if ($categoryId == '0') {
 
-            $uncat_q = $this->db->query('SELECT  `product_id` FROM ' . DB_PREFIX . 'product WHERE product_id NOT IN (SELECT `product_id` FROM ' . DB_PREFIX . 'product_to_category)');
+            $uncat_q = $this->db->query(
+                'SELECT  `product_id` FROM ' . DB_PREFIX . 'product WHERE product_id NOT IN (SELECT `product_id` FROM '
+                . DB_PREFIX . 'product_to_category)'
+            );
             foreach ($uncat_q->rows as $pid) {
                 $products[$pid['product_id']] = $this->model_catalog_product->getProduct($pid['product_id']);
             }
@@ -94,6 +136,11 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $products_slice;
     }
 
+    /**
+     * Get all products.
+     *
+     * @return array
+     */
     public function &getAllProducts() {
         $productsIds = array();
         $r = $this->db->query('SELECT `product_id` FROM ' . DB_PREFIX . 'product WHERE `status` = 1');
@@ -107,88 +154,62 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $productsIds;
     }
 
-    public function &exportProducts(&$productsIds, &$exportConfiguration) {
-        $exportQuantityMoreThan = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getExportQuantityMoreThan();
-        $defaultStockQuantity = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getDefaultStockQuantity();
+    /**
+     * Export products
+     *
+     * @param mixed $productsIds product ids
+     * @param array $exportConfiguration config
+     *
+     * @return array
+     */
+    public function exportProducts($productsIds, $exportConfiguration) {
 
-        // Version >= 2.0
-        if (version_compare(VERSION, '2.0') >= 0) {
-            $optionValueElementName = 'product_option_value';
-        } else {
-            $optionValueElementName = 'option_value';
-        }
+        $exportQuantityMoreThan = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+            ->getSettings()->getExportQuantityMoreThan();
 
+        $defaultStockQuantity = bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+            ->getSettings()->getDefaultStockQuantity();
+        
         $exportProducts = array();
         foreach ($productsIds as $productId) {
             $product = $this->model_catalog_product->getProduct($productId);
 
-            if (!$product) continue;
+            if (!$product) {
+                continue;
+            }
 
             $product['categories'] = array();
+
             foreach ($this->model_catalog_product->getCategories($product['product_id']) as $category) {
                 $product['categories'][] = $category['category_id'];
             }
 
-            if (empty($product['categories'])) {
-                $product['categories'] = array('0');
-            }
+            $product['categories'] = (empty($product['categories'])) ? array('0') : $product['categories'];
 
-            $categoriesMatching = array_intersect($exportConfiguration[bobsi\Settings::paramCategories], $product['categories']);
+            $categoriesMatching = array_intersect(
+                $exportConfiguration[bobsi\Settings::paramCategories], $product['categories']
+            );
+
             if (empty($categoriesMatching)) {
                 continue;
             }
 
-            $optionsArray = $this->model_catalog_product->getProductOptions($product['product_id']);
-            $variations = array();
-            $sortVariations = array();
-            if (!empty($optionsArray)) {
-                foreach ($optionsArray as $options) {
-                    $temp = array();
-                    $currentTitle = $options['name'];
-
-                    $index = 0;
-                    if (is_array($options[$optionValueElementName])) {
-                        foreach ($options[$optionValueElementName] as $option) {
-                            $temp[] = array(
-                                'id' => $index++,
-                                'name' => $option['name'],
-                                'operand' => $option['price_prefix'],
-                                'adjustment' => floatval($option['price']),
-                                'weight' => floatval($option['weight']),
-                                'weight_operand' => $option['weight_prefix'],
-                                'quantity' => intval($option['quantity'])
-                                );
-                        }
-                    } else {
-                        $temp[] = array(
-                            'id' => $index++,
-                            'name' => $options[$optionValueElementName],
-                            'operand' => '+',
-                            'adjustment' => floatval(0),
-                            'weight' => floatval(0),
-                            'weight_operand' => '+',
-                            'quantity' => intval(0)
-                            );
-                    }
-
-                    $sortVariations[$currentTitle] = $temp;
-                }
-                $variations = $this->array_cartesian($sortVariations);
-            }
+            $variations = $this->buildProductVariations($product);
 
             if ($this->calcProductQuantity($product, $defaultStockQuantity) > $exportQuantityMoreThan) {
                 //If variation available - process it as independent product
                 if (!empty($variations)) {
                     foreach ($variations as $variation) {
                         //Get Q-ty from variation
-                        foreach($variation as $key => $val){
+                        foreach ($variation as $key => $val) {
                             $variationQty = $val['quantity'];
                         }
 
                         $p = $this->buildExportProduct($product, $variation);
                         //Check if PRICE > 0 AND variation quantity > saved in settings number
-                        if (intval($p[bobsi\Tradefeed::nameProductPrice]) > 0 &&
-                        $variationQty > $exportQuantityMoreThan) {
+                        if (intval($p[bobsi\Tradefeed::nameProductPrice]) > 0
+                            && $variationQty > $exportQuantityMoreThan
+                        ) {
                             $exportProducts[] = $p;
                         } else {
                             bobsi\StaticHolder::getBidorbuyStoreIntegrator()->logInfo(
@@ -198,14 +219,13 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
                     }
                 } else {
                     $p = $this->buildExportProduct($product);
-                    if (intval($p[bobsi\Tradefeed::nameProductPrice]) > 0) {
-                        $exportProducts[] = $p;
-                    } else {
-                        bobsi\StaticHolder::getBidorbuyStoreIntegrator()->logInfo('Product price <= 0, skipping, product id: ' . $product['product_id']);
-                    }
+                    (intval($p[bobsi\Tradefeed::nameProductPrice]) > 0) ? $exportProducts[] = $p 
+                        : bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                        ->logInfo('Product price <= 0, skipping, product id: ' . $product['product_id']);
                 }
             } else {
-                bobsi\StaticHolder::getBidorbuyStoreIntegrator()->logInfo('QTY is not enough to export product id: ' . $product['product_id']);
+                bobsi\StaticHolder::getBidorbuyStoreIntegrator()
+                    ->logInfo('QTY is not enough to export product id: ' . $product['product_id']);
             }
 
         }
@@ -213,6 +233,65 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $exportProducts;
     }
 
+    /**
+     * Build Variations
+     * 
+     * @param object $product product
+     *
+     * @return array
+     */
+    protected function buildProductVariations($product) {
+        $optionValueElementName = (version_compare(VERSION, '2.0') >= 0) ? 'product_option_value' : 'option_value';
+        $optionsArray = $this->model_catalog_product->getProductOptions($product['product_id']);
+        $variations = array();
+        $sortVariations = array();
+        if (!empty($optionsArray)) {
+            foreach ($optionsArray as $options) {
+                $temp = array();
+                $currentTitle = $options['name'];
+
+                $index = 0;
+                if (is_array($options[$optionValueElementName])) {
+                    foreach ($options[$optionValueElementName] as $option) {
+                        $temp[] = array(
+                            'id' => $index++,
+                            'name' => $option['name'],
+                            'operand' => $option['price_prefix'],
+                            'adjustment' => floatval($option['price']),
+                            'weight' => floatval($option['weight']),
+                            'weight_operand' => $option['weight_prefix'],
+                            'quantity' => intval($option['quantity'])
+                        );
+                    }
+                } else {
+                    $temp[] = array(
+                        'id' => $index++,
+                        'name' => $options[$optionValueElementName],
+                        'operand' => '+',
+                        'adjustment' => floatval(0),
+                        'weight' => floatval(0),
+                        'weight_operand' => '+',
+                        'quantity' => intval(0)
+                    );
+                }
+
+                $sortVariations[$currentTitle] = $temp;
+            }
+            $variations = $this->arrayCartesian($sortVariations);
+        }
+        
+        return $variations;
+    }
+
+    /**
+     * Get Export Categories Ids
+     *
+     * @param array $ids ids
+     * @param array $result_ids result ids
+     * @param array $cats cats
+     *
+     * @return array|bool
+     */
     protected function getExportCategoriesIds($ids = array(), &$result_ids = array(), $cats = array(0)) {
         $categories = array();
         foreach ($cats as $c) {
@@ -224,7 +303,7 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
                 $categories_ids[] = $cat['category_id'];
             }
         } else {
-            return true;
+            return TRUE;
         }
 
         $result_ids = array_merge($result_ids, $categories_ids);
@@ -238,6 +317,14 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return array_values(array_diff($result_ids, $ids));
     }
 
+    /**
+     * Build product for export.
+     *
+     * @param object $product product
+     * @param array $variations variations
+     *
+     * @return array
+     */
     protected function &buildExportProduct(&$product, &$variations = array()) {
         $exportedProduct = array();
 
@@ -268,10 +355,12 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
             $categories[] = $this->getBreadcrumb($category);
         }
 
-        $exportedProduct[bobsi\Tradefeed::nameProductCategory] = join(bobsi\Tradefeed::categoryNameDelimiter, $categories);
+        $exportedProduct[bobsi\Tradefeed::nameProductCategory] = join(
+            bobsi\Tradefeed::categoryNameDelimiter, $categories
+        );
 
         $priceWithoutReduct = $this->calcPriceWithTax($product['price'] + $varPrices, $product);
-        $priceFinal = ($product['special'] != null) ?
+        $priceFinal = ($product['special'] != NULL) ?
             $this->calcPriceWithTax($product['special'] + $varPrices, $product) :
             $priceWithoutReduct;
 
@@ -289,38 +378,17 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         $exportedProduct[bobsi\Tradefeed::nameProductDescription] = $description;
         $exportedProduct[bobsi\Tradefeed::nameProductCondition] = bobsi\Tradefeed::conditionNew;
 
-        $attributesGroups = $this->model_catalog_product->getProductAttributes($product['product_id']);
-        if (!empty($attributesGroups)) {
-            foreach ($attributesGroups as $attributesGroup) {
-                foreach ($attributesGroup['attribute'] as $attribute) {
-                    $attrs[] = array('name' => $attribute['name'], 'value' => $attribute['text']);
-                }
-            }
-        }
-
-        if ($product['height'] + 0) $attrs[] = array(
-            'name' => bobsi\Tradefeed::nameProductAttrHeight,
-            'value' => number_format($product['height'] + 0, 2, '.', ''));
-//            'value' => intval($product['height']));
-        if ($product['width'] + 0) $attrs[] = array(
-            'name' => bobsi\Tradefeed::nameProductAttrWidth,
-            'value' => number_format($product['width'] + 0, 2, '.', ''));
-//            'value' => intval($product['width'] + 0));
-        if ($product['length'] + 0) $attrs[] = array(
-            'name' => bobsi\Tradefeed::nameProductAttrLength,
-            'value' => number_format($product['length'] + 0, 2, '.', ''));
-//            'value' => intval($product['length'] + 0));
-
-        $weightClass = (version_compare(VERSION, '2.2') >= 0) ? new \Cart\Weight($this->registry) : new Weight($this->registry);
-        if (($product['weight'] + $varWeight) > 0) $attrs[] = array(
-            'name' => bobsi\Tradefeed::nameProductAttrShippingWeight,
-            'value' => number_format($product['weight'] + $varWeight, 2, '.', '') . $weightClass->getUnit($product['weight_class_id']));
-//            'value' => intval($product['weight'] + $varWeight));
+        $this->buildExportProductAttributes($product, $varWeight, $attrs);
 
         $exportedProduct[bobsi\Tradefeed::nameProductAttributes] = $attrs;
-        $exportedProduct[bobsi\Tradefeed::nameProductAvailableQty] = $this->calcProductQuantity($product, bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getDefaultStockQuantity());
+        $exportedProduct[bobsi\Tradefeed::nameProductAvailableQty] = $this->calcProductQuantity(
+            $product, bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getDefaultStockQuantity()
+        );
 
-        $images = $this->getImages($product['image'], $this->model_catalog_product->getProductImages($product['product_id']));
+        $images = $this->getImages($product['image'], $this->model_catalog_product->getProductImages(
+            $product['product_id'])
+        );
+
         $exportedProduct[bobsi\Tradefeed::nameProductImages] = $images;
 
         if (!empty($images)) {
@@ -330,9 +398,63 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $exportedProduct;
     }
 
+    /**
+     * Build arrtibutes
+     *
+     * @param object $product product
+     * @param mixed $varWeight weight
+     * @param array $attrs attributes
+     *
+     * @return array
+     */
+    protected function buildExportProductAttributes($product, $varWeight, &$attrs) {
+        $attributesGroups = $this->model_catalog_product->getProductAttributes($product['product_id']) ?: array();
+        foreach ($attributesGroups as $attributesGroup) {
+            foreach ($attributesGroup['attribute'] as $attribute) {
+                $attrs[] = array('name' => $attribute['name'], 'value' => $attribute['text']);
+            }
+        }
+
+        if ($product['height'] + 0) {
+            $attrs[] = array(
+                'name' => bobsi\Tradefeed::nameProductAttrHeight,
+                'value' => number_format($product['height'] + 0, 2, '.', '')
+            );
+        }
+
+        if ($product['width'] + 0) {
+            $attrs[] = array(
+                'name' => bobsi\Tradefeed::nameProductAttrWidth,
+                'value' => number_format($product['width'] + 0, 2, '.', '')
+            );
+        }
+
+        if ($product['length'] + 0) {
+            $attrs[] = array(
+                'name' => bobsi\Tradefeed::nameProductAttrLength,
+                'value' => number_format($product['length'] + 0, 2, '.', '')
+            );
+        }
+
+        $weightClass = (version_compare(VERSION, '2.2') >= 0) ?
+            new \Cart\Weight($this->registry) : new Weight($this->registry);
+        if (($product['weight'] + $varWeight) > 0) {
+            $attrs[] = array(
+                'name' => bobsi\Tradefeed::nameProductAttrShippingWeight,
+                'value' => number_format($product['weight'] + $varWeight, 2, '.', '')
+                    . $weightClass->getUnit($product['weight_class_id']));
+        }
+    }
+
+    /**
+     * Export
+     *
+     * @return void
+     */
     public function export() {
         $token = $this->getToken();
-        $products = isset($this->request->request[bobsi\Settings::paramIds]) ? $this->request->request[bobsi\Settings::paramIds] : false;
+        $products = isset($this->request->request[bobsi\Settings::paramIds]) ?
+            $this->request->request[bobsi\Settings::paramIds] : FALSE;
 
         $exportConfiguration = array(
             bobsi\Settings::paramIds => $products,
@@ -340,38 +462,77 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
             bobsi\Settings::paramCallbackGetProducts => array($this, 'getAllProducts'),
             bobsi\Settings::paramCallbackGetBreadcrumb => array($this, 'getBreadcrumb'),
             bobsi\Settings::paramCallbackExportProducts => array($this, 'exportProducts'),
-            bobsi\Settings::paramCategories => $this->getExportCategoriesIds(bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getExcludeCategories()),
+            bobsi\Settings::paramCategories => $this->getExportCategoriesIds(
+                bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getExcludeCategories()
+            ),
             bobsi\Settings::paramExtensions => $this->getInstalledExtensions()
         );
 
         bobsi\StaticHolder::getBidorbuyStoreIntegrator()->export($token, $exportConfiguration);
     }
 
+    /**
+     * Download xml
+     *
+     * @return void
+     */
     public function download() {
         $token = $this->getToken();
         bobsi\StaticHolder::getBidorbuyStoreIntegrator()->download($token);
     }
 
+    /**
+     * Download logs
+     *
+     * @return void
+     */
     public function downloadl() {
         $token = $this->getToken();
         bobsi\StaticHolder::getBidorbuyStoreIntegrator()->downloadl($token);
     }
 
+    /**
+     * Server info - phpInfo()
+     *
+     * @return void
+     */
     public function version() {
         $token = $this->getToken();
         $phpinfo = isset($this->request->request['phpinfo']) ? $this->request->request['phpinfo'] : 'n';
         bobsi\StaticHolder::getBidorbuyStoreIntegrator()->showVersion($token, 'y' == $phpinfo);
     }
 
+    /**
+     * Get token
+     *
+     * @return mixed
+     */
     protected function getToken() {
-        return isset($this->request->request[bobsi\Settings::paramToken]) ? $this->request->request[bobsi\Settings::paramToken] : false;
+        return isset($this->request->request[bobsi\Settings::paramToken]) ?
+            $this->request->request[bobsi\Settings::paramToken] : FALSE;
     }
 
+    /**
+     * Calc Product Quantity
+     *
+     * @param object $product product
+     * @param int $default default
+     *
+     * @return int
+     */
     protected function calcProductQuantity($product, $default = 0) {
         $qty = intval($product['quantity']);
         return $qty ? $qty : (($product['stock_status'] == 'In Stock') ? $default : 0);
     }
 
+    /**
+     * Calc Price With Tax
+     *
+     * @param float $value value
+     * @param object $product product
+     *
+     * @return mixed
+     */
     protected function calcPriceWithTax($value, $product) {
         if ($this->config->get('config_tax')) {
             return $this->tax->calculate($value, $product['tax_class_id']);
@@ -380,6 +541,14 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         }
     }
 
+    /**
+     * Get Variation Value
+     *
+     * @param string $operand operand
+     * @param mixed $adjustment adjustment
+     *
+     * @return float|int
+     */
     public function getVariationValue($operand, $adjustment) {
         if ($operand == '+' or $operand == '=') {
             return (float)$adjustment;
@@ -389,6 +558,11 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return 0;
     }
 
+    /**
+     * Get Installed Extensions
+     *
+     * @return array
+     */
     protected function getInstalledExtensions() {
         $types = scandir(DIR_APPLICATION . '/controller');
         $extensions = array();
@@ -409,6 +583,14 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $extensions;
     }
 
+    /**
+     * Get images
+     *
+     * @param mixed $main_image main image
+     * @param mixed $extra_images extra image
+     *
+     * @return array
+     */
     protected function getImages($main_image, $extra_images) {
         $images = array();
 
@@ -430,7 +612,14 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
         return $images;
     }
 
-    protected function array_cartesian($input) {
+    /**
+     * Array Cartesian
+     *
+     * @param array $input input
+     *
+     * @return array
+     */
+    protected function arrayCartesian($input) {
         $result = array();
 
         while (list($key, $values) = each($input)) {
@@ -484,6 +673,12 @@ class ControllerFeedBidorbuyStoreIntegrator extends Controller {
     }
 }
 
+/**
+ * Class ControllerExtensionFeedBidorbuyStoreIntegrator.
+ *
+ * @codingStandardsIgnoreStart
+ */
 class ControllerExtensionFeedBidorbuyStoreIntegrator extends ControllerFeedBidorbuyStoreIntegrator {
 
 }
+// @codingStandardsIgnoreEnd

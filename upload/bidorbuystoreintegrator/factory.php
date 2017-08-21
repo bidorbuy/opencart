@@ -5,8 +5,9 @@
  * This software is the proprietary information of Bidorbuy.
  *
  * All Rights Reserved.
- * Modification, redistribution and use in source and binary forms, with or without modification
- * are not permitted without prior written approval by the copyright holder.
+ * Modification, redistribution and use in source and binary forms, with or without
+ * modification are not permitted without prior written approval by the copyright
+ * holder.
  *
  * Vendor: EXTREME IDEA LLC http://www.extreme-idea.com
  */
@@ -16,13 +17,23 @@ use com\extremeidea\bidorbuy\storeintegrator\core as bobsi;
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
 define('BIDORBUY_SETTINGS_NAME', bobsi\Version::$id . '_' . bobsi\Settings::name);
 
-version_compare(VERSION, '2.3') >= 0 ? define('EXTENSION_PATH','extension/') : define('EXTENSION_PATH','');
+version_compare(VERSION, '2.3') >= 0 ? define('EXTENSION_PATH', 'extension/') : define('EXTENSION_PATH', '');
 
-
+/**
+ * Class BobsiInit.
+ */
 class BobsiInit {
 
+    /**
+     * Init.
+     *
+     * @param object $config config
+     *
+     * @return void
+     */
     public function init($config) {
-        $bobsiConfig = !is_null($config->get(BIDORBUY_SETTINGS_NAME)) ? $config->get(BIDORBUY_SETTINGS_NAME) : $config->get(bobsi\Settings::name);
+        $bobsiConfig = !is_null($config->get(BIDORBUY_SETTINGS_NAME)) ?
+            $config->get(BIDORBUY_SETTINGS_NAME) : $config->get(bobsi\Settings::name);
 
         bobsi\StaticHolder::getBidorbuyStoreIntegrator()->init(
             $config->get("config_name"),
@@ -33,7 +44,14 @@ class BobsiInit {
     }
 }
 
-function bidorbuystoreintegrator_upgrade_202($settingsModel = null) {
+/**
+ * Update bobsi
+ *
+ * @param mixed $settingsModel settings model
+ *
+ * @return bool
+ */
+function bidorbuystoreintegrator_upgrade_202($settingsModel = NULL) {
 
     $oldSettings = $settingsModel->getSetting(bobsi\Settings::name);
     $statusName = bobsi\Version::$id . '_status';
@@ -46,17 +64,28 @@ function bidorbuystoreintegrator_upgrade_202($settingsModel = null) {
         $settingsModel->deleteSetting(bobsi\Settings::name);
     }
 
-    return true;
+    return TRUE;
 }
 
-function bidorbuystoreintegrator_is_upgrade_required($settingsModel = null) {
+/**
+ * Check update.
+ * 
+ * @param mixed $settingsModel settings model
+ *
+ * @return bool
+ */
+function bidorbuystoreintegrator_is_upgrade_required($settingsModel = NULL) {
 
     $oldSettings = $settingsModel->getSetting(bobsi\Settings::name);
     $newSettings = $settingsModel->getSetting(bobsi\Version::$id);
 
-    if (is_array($oldSettings) && !empty($oldSettings) && isset($oldSettings[bobsi\Settings::name]) && empty($newSettings)) {
-        return true;
+    if (is_array($oldSettings)
+        && !empty($oldSettings)
+        && isset($oldSettings[bobsi\Settings::name])
+        && empty($newSettings)
+    ) {
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }

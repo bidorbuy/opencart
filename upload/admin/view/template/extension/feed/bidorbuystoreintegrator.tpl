@@ -236,7 +236,17 @@ echo $header; ?>
                                 <span class="help"><?php  echo $exporConfigstFieldSet[7]->desc; ?></span>
                             </td>
                         </tr>
-
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="buttons" align="right">
+                                    <a id="submit" onclick="
+                                    jQuery('#bobsi-exc-categories option').prop('selected', 'selected');
+                                    jQuery('#bobsi-inc-statuses option').prop('selected', 'selected');
+                                    $('#form').submit();" class="button"><?php echo $button_save; ?></a>
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
 

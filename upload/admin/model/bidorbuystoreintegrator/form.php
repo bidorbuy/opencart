@@ -5,36 +5,59 @@
  * This software is the proprietary information of Bidorbuy.
  *
  * All Rights Reserved.
- * Modification, redistribution and use in source and binary forms, with or without modification
- * are not permitted without prior written approval by the copyright holder.
+ * Modification, redistribution and use in source and binary forms, with or without
+ * modification are not permitted without prior written approval by the copyright
+ * holder.
  *
  * Vendor: EXTREME IDEA LLC http://www.extreme-idea.com
  */
 
 use com\extremeidea\bidorbuy\storeintegrator\core as bobsi;
 
+require_once(dirname(__FILE__) . '/BidorbuyStoreIntegratorField.php');
+
+/**
+ * Class BidorbuyStoreIntegratorForm.
+ */
 class BidorbuyStoreIntegratorForm {
     public $formData = array();
     var $wordings = array();
 
-    private $language = null;
+    private $language = NULL;
     private $categories = array();
 
-    private $formField = null;
+    private $formField = NULL;
 
+    /**
+     * BidorbuyStoreIntegratorForm constructor.
+     *
+     * @param object $language language
+     * @param array $categories categories
+     * @param array $settings settings
+     *
+     * @return void
+     */
     public function __construct($language, $categories = array(), $settings = array()) {
         $this->categories = $categories;
         $this->language = $language;
         $this->formField = new BidorbuyStoreIntegratorField();
 
         if (isset($settings[BIDORBUY_SETTINGS_NAME])) {
-            bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->unserialize($settings[BIDORBUY_SETTINGS_NAME], true);
+            bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->unserialize(
+                $settings[BIDORBUY_SETTINGS_NAME], TRUE
+            );
         }
 
         $this->formData = $this->loadFormData();
     }
 
-    /*************************************************************************************/
+    /**
+     * Get fieldset
+     *
+     * @param string $string string
+     *
+     * @return array
+     */
     public function getFieldset($string = '') {
         $fieldSet = array();
 
@@ -60,6 +83,11 @@ class BidorbuyStoreIntegratorForm {
 
     /***************************************************************************************/
 
+    /**
+     * Get user name field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getUserNameField() {
         $name = bobsi\Settings::nameUsername;
         $text = $this->language->get($name);
@@ -67,13 +95,25 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($this->createInputArray($name), $this->createLabelArray($name), $desc);
     }
 
+    /**
+     * Get password field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getPasswordField() {
         $name = bobsi\Settings::namePassword;
         $text = $this->language->get($name);
         $desc = $text['desc'];
-        return $this->formField->getField($this->createInputArray($name, 'password'), $this->createLabelArray($name), $desc);
+        return $this->formField->getField($this->createInputArray(
+            $name, 'password'), $this->createLabelArray($name), $desc
+        );
     }
 
+    /**
+     * Get File name  field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getFileNameField() {
         $name = bobsi\Settings::nameFilename;
         $text = $this->language->get($name);
@@ -81,6 +121,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($this->createInputArray($name), $this->createLabelArray($name), $desc);
     }
 
+    /**
+     * Get Compress Library
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getCompressLibraryField() {
         $name = bobsi\Settings::nameCompressLibrary;
         $text = $this->language->get($name);
@@ -104,6 +149,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($input, $label, $desc);
     }
 
+    /**
+     * Get Min quantity field.
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getMinQuantityField() {
         $name = bobsi\Settings::nameDefaultStockQuantity;
         $text = $this->language->get($name);
@@ -112,6 +162,11 @@ class BidorbuyStoreIntegratorForm {
     }
 
 
+    /**
+     * Get Email field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getEmailField() {
         $name = bobsi\Settings::nameEmailNotificationAddresses;
         $text = $this->language->get($name);
@@ -119,6 +174,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($this->createInputArray($name), $this->createLabelArray($name), $desc);
     }
 
+    /**
+     * Get Checkbox Notification Field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getCheckboxNotificationField() {
         $name = bobsi\Settings::nameEnableEmailNotifications;
         $text = $this->language->get($name);
@@ -136,6 +196,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($input, $this->createLabelArray($name), $desc);
     }
 
+    /**
+     * Get Logging Level Field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getLoggingLevelField() {
         $name = bobsi\Settings::nameLoggingLevel;
         $text = $this->language->get($name);
@@ -158,10 +223,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($input, $this->createLabelArray($name), $desc);
     }
 
-    /*
-     * Functions for "Export criteria" fieldset
+    /**
+     * Get Export Quantity More Than Field
+     *
+     * @return BidorbuyStoreIntegratorField
      */
-
     public function getExportQuantityMoreThanField() {
         $name = bobsi\Settings::nameExportQuantityMoreThan;
         $text = $this->language->get($name);
@@ -169,6 +235,11 @@ class BidorbuyStoreIntegratorForm {
         return $this->formField->getField($this->createInputArray($name), $this->createLabelArray($name), $desc);
     }
 
+    /**
+     * Get Categories Field
+     *
+     * @return BidorbuyStoreIntegratorField
+     */
     public function getCategoriesField() {
         $field = new BidorbuyStoreIntegratorField();
         $export_categories = bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings()->getExcludeCategories();
@@ -205,15 +276,27 @@ class BidorbuyStoreIntegratorForm {
         return $field;
     }
 
-
+    /**
+     * Load form data
+     *
+     * @return array|mixed
+     */
     protected function loadFormData() {
         $data = (array)bobsi\StaticHolder::getBidorbuyStoreIntegrator()->getSettings();
         $data = array_shift($data);
         return $data;
     }
 
-    private function  createLabelArray($name, $tip = true) {
-        $tip = version_compare(VERSION, '2.0') > 0 ? false : $tip;
+    /**
+     * Label array
+     *
+     * @param string $name name
+     * @param bool $tip tip
+     *
+     * @return array
+     */
+    private function createLabelArray($name, $tip = TRUE) {
+        $tip = version_compare(VERSION, '2.0') > 0 ? FALSE : $tip;
 
         $text = $this->language->get($name);
         $label = array('label' => array('id' => $name . '-lbl', 'for' => $name),
@@ -229,6 +312,14 @@ class BidorbuyStoreIntegratorForm {
         return $label;
     }
 
+    /**
+     * Create input array
+     *
+     * @param string $name name
+     * @param string $type type
+     *
+     * @return array
+     */
     private function createInputArray($name, $type = 'text') {
         $input = array('input' => array(
             'type' => $type,
@@ -240,55 +331,3 @@ class BidorbuyStoreIntegratorForm {
         return $input;
     }
 }
-
-
-class BidorbuyStoreIntegratorField {
-    public $label;
-    public $input;
-    public $desc;
-    private $tag = '';
-
-    public function getField($input, $label = array(), $desc = '') {
-        $field = new self;
-        $field->input = $input ? $field->createHtmlNode($input) : '';
-        $field->label = $label ? $field->createHtmlNode($label) : '';
-        $field->desc = $desc;
-
-        return $field;
-    }
-
-    private function createHtmlNode($nodes = array(), $is_tag_name = true, &$html_string = '', &$tags = array(), $iterationIndex = 0) {
-        if ($is_tag_name) {
-            $keys = array_keys($nodes);
-            $this->tag = $keys[0];
-            $tags[] = $keys[0];
-            $html_string .= '<' . $this->tag . ' ';
-        }
-
-        foreach ($nodes as $node => $attr) {
-            if ($node == 'childNode') {
-
-                if (is_array($attr)) {
-                    foreach ($attr as $child) {
-                        $this->createHtmlNode($child, true, $html_string, $tags, ++$iterationIndex);
-                    }
-                    $html_string .= '</' . $tags[0] . '>';
-                } else {
-                    $html_string .= $attr;
-                    $html_string .= '</' . $tags[$iterationIndex] . '>';
-                }
-//                    $html_string .= '</' . $this->tags[0] . '>';
-            } elseif (is_array($attr)) {
-                $this->createHtmlNode($attr, false, $html_string, $tags);
-            } elseif (next($nodes) === false) {
-                $html_string .= ' ' . $node . '="' . $attr . '"';
-                $html_string .= '>';
-            } else {
-                $html_string .= ' ' . $node . '="' . $attr . '"';
-            }
-        }
-        return $html_string;
-    }
-}
-
-?>

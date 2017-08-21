@@ -29,13 +29,18 @@ $_['export_configs_title'] = 'Export Configurations';
 $_['export_configs_desc'] = '';
 
 $_[bobsi\Settings::nameUsername]['title'] = 'Username';
-$_[bobsi\Settings::nameUsername]['desc'] = 'Please specify the username if your platform is protected by <a href=\'http://en.wikipedia.org/wiki/Basic_access_authentication\' target=\'_blank\'>Basic Access Authentication</a>';
+$_[bobsi\Settings::nameUsername]['desc'] = 'Please specify the username if your platform is protected by ' .
+    '<a href=\'http://en.wikipedia.org/wiki/Basic_access_authentication\' ' .
+    'target=\'_blank\'>Basic Access Authentication</a>';
 
 $_[bobsi\Settings::namePassword]['title'] = 'Password';
-$_[bobsi\Settings::namePassword]['desc'] = 'Please specify the password if your platform is protected by <a href=\'http://en.wikipedia.org/wiki/Basic_access_authentication\' target=\'_blank\'>Basic Access Authentication</a>';
+$_[bobsi\Settings::namePassword]['desc'] = 'Please specify the password if your platform is protected by ' .
+    '<a href=\'http://en.wikipedia.org/wiki/Basic_access_authentication\' ' .
+    'target=\'_blank\'>Basic Access Authentication</a>';
 
 $_[bobsi\Settings::nameFilename]['title'] = 'Export Filename';
-$_[bobsi\Settings::nameFilename]['desc'] = '16 characters max. Must start with a letter.<br>Can contain letters, digits, `-` and `_`';
+$_[bobsi\Settings::nameFilename]['desc'] = '16 characters max. Must start with a letter.<br>' .
+    'Can contain letters, digits, `-` and `_`';
 
 $_[bobsi\Settings::nameCompressLibrary]['title'] = 'Compress Tradefeed XML';
 $_[bobsi\Settings::nameCompressLibrary]['desc'] = 'Choose a Compress Library to compress destination Tradefeed XML';
@@ -44,20 +49,23 @@ $_[bobsi\Settings::nameDefaultStockQuantity]['title'] = 'Min quantity in stock';
 $_[bobsi\Settings::nameDefaultStockQuantity]['desc'] = 'Set minimum quantity if quantity management is turned OFF';
 
 $_[bobsi\Settings::nameEmailNotificationAddresses]['title'] = 'Send logs to email addresses';
-$_[bobsi\Settings::nameEmailNotificationAddresses]['desc'] = 'Specify email address(es) separated by comma to send the log entries to';
+$_[bobsi\Settings::nameEmailNotificationAddresses]['desc'] = 'Specify email address(es) separated by comma to send ' .
+    'the log entries to';
 
 $_[bobsi\Settings::nameEnableEmailNotifications]['title'] = 'Turn on/off email notifications';
 $_[bobsi\Settings::nameEnableEmailNotifications]['desc'] = '';
 
 $_[bobsi\Settings::nameLoggingLevel]['title'] = 'Logging Level';
-$_[bobsi\Settings::nameLoggingLevel]['desc'] = 'A level describes the severity of a logging message. There are six levels, show here in descending order of severity';
+$_[bobsi\Settings::nameLoggingLevel]['desc'] = 'A level describes the severity of a logging message. There are six ' .
+    'levels, show here in descending order of severity';
 
 // Export Criteria
 $_['export_criteria_title'] = 'Export Criteria';
 $_['export_criteria_desc'] = '';
 
 $_[bobsi\Settings::nameExportQuantityMoreThan]['title'] = 'Export products with available quantity more than';
-$_[bobsi\Settings::nameExportQuantityMoreThan]['desc'] = 'Products with stock quantities lower than this value will be excluded from the XML feed';
+$_[bobsi\Settings::nameExportQuantityMoreThan]['desc'] = 'Products with stock quantities lower than this value will ' .
+    'be excluded from the XML feed';
 
 $_['export_criteria_activeonly_title'] = 'Export only published products';
 $_['export_criteria_activeonly_desc'] = '';
@@ -86,4 +94,5 @@ $_['text_enabled'] = 'Enabled';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify bidorbuy Store Integrator!';
-$_['error_filename'] = 'Warning: Incorrect Export Filename. <br> 16 characters max. Must start with a letter. Can contain letters, digits, `-` and `_`';
+$_['error_filename'] = 'Warning: Incorrect Export Filename. <br> 16 characters max. Must start with a letter. ' .
+    'Can contain letters, digits, `-` and `_`';

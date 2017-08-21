@@ -14,12 +14,29 @@
 require_once(DIR_SYSTEM . '/../bidorbuystoreintegrator/factory.php');
 require_once(dirname(__FILE__) . '/form.php');
 
+/**
+ * Class ModelBidorbuyStoreIntegratorModel
+ */
 class ModelBidorbuyStoreIntegratorModel extends Model {
     private $form;
 
+    /**
+     * ModelBidorbuyStoreIntegratorModel constructor.
+     *
+     * @return mixed
+     */
     public function __construct() {
     }
 
+    /**
+     * Get Form
+     * 
+     * @param mixed $language language
+     * @param array $categories categories
+     * @param array $settings settings
+     *
+     * @return BidorbuyStoreIntegratorForm
+     */
     public function getForm($language, $categories = array(), $settings = array()) {
         //Add Uncategorized
         $categories[] = array(
