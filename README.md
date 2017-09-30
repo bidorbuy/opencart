@@ -1,7 +1,13 @@
 # OpenCart bidorbuy Store Integrator
 
 ### Compatibility
-OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2
+
+| Product | PHP version  | Platform |
+| ------- | --- | --- |
+| Store Integrator-2.0.11 | 5.4 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
+| Store Integrator-2.0.10 | 5.4 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
+| Store Integrator-2.0.9 | 5.3 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
+| Store Integrator-2.0.8 | 5.3 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
 
 ### Description 
 
@@ -14,7 +20,7 @@ To make use of this plugin, you'll need to be an advanced seller on bidorbuy.
  * Once you integrate with bidorbuy, you will be contacted by a bidorbuy representative to guide you through the process.
 
 ### System requirements
-- Minimum PHP version required: 5.4
+- Supported PHP version: 5.4
 - PHP extensions: curl, mbstring
 
 ### Installation OpenCart 1.5, OpenCart 2.1, OpenCart 2.2:
@@ -55,7 +61,7 @@ Remove all old files of previous installation and re-install the archive (please
 7. YOUR_ADMIN folder > view > image > bidorbuystoreintegrator;
 8. YOUR_ADMIN folder > view > javascript > bidorbuystoreintegrator;
 9. YOUR_ADMIN folder > view > stylessheet > bidorbuystoreintegrator;
-10. YOUR_ADMIN folder > view > template > feed > bidorbuystoreintegrator.tpl;
+10. YOUR_ADMIN folder >view > template > feed > bidorbuystoreintegrator.tpl;
 11. YOUR_ADMIN folder > view > template > feed > bidorbuystoreintegrator_v2.x.tpl.
 
 Notice: If you had wrongly uploaded the Store Integrator version (after that you can not access to Open Cart extensions page, it says 'not found'): please delete the '*feed*' folder and re-install the proper version of archive (please look through the installation chapter):
@@ -68,7 +74,7 @@ Notice: If you had wrongly uploaded the Store Integrator version (after that you
 1. Log into control panel as administrator.
 2. OpenCart 1.5: Go to Extensions > Product Feeds > bidorbuy Store Integrator > Edit.
 3. OpenCart 2.2: Go to Extensions > Feed > Feed List > bidorbuy Store Integrator > Edit.
-4. OpenCart 2.3: Go to Extensions > Feeds > bidorbuy Store Integrator > Edit.
+4. OpenCart 2.3: Go to Extensions > Feeds (4) > bidorbuy Store Integrator > Edit.
 5. Set the export criteria.
 6. Press the `Save` button.
 7. Press the `Export` button.

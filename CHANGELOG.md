@@ -2,6 +2,11 @@
 
 ### Changelog
 
+#### 2.0.11
+* Corrected header processing in Store Integrators core.
+
+_[Updated on September 30, 2017]_
+
 #### 2.0.10
 * EOL (End-of-life due to the end of life of this version) for PHP 5.3 support.
 * Improved the logging strategy.
