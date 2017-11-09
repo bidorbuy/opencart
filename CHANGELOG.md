@@ -2,6 +2,11 @@
 
 ### Changelog
 
+#### 2.0.12
+* Enhancements and bugs fixes.
+
+_[Updated on November 07, 2017]_
+
 #### 2.0.11
 * Corrected header processing in Store Integrators core.
 

@@ -4,6 +4,7 @@
 
 | Product | PHP version  | Platform |
 | ------- | --- | --- |
+| Store Integrator-2.0.12 | 5.4 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
 | Store Integrator-2.0.11 | 5.4 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
 | Store Integrator-2.0.10 | 5.4 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
 | Store Integrator-2.0.9 | 5.3 | ✓ OpenCart 1.5.6.2, 2.1.0, 2.2.0, 2.3.0.2 |
